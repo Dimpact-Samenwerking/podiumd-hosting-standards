@@ -70,31 +70,9 @@ See section [COMP006.2-upgrade-time-limit] for more details.
 #### High Availability
 
 Critical components must be able to survive a zone failure.
-See section [COMP014.3-redundancy] for more details.
-
-#### Monitoring and Alerting
-
-Applications must be able to be monitored and alerted on.
-See section [COMP018-alerting] for more details.
-
-
-#### Disaster Recovery
-
-Applications must be able to recover from a disaster.
-See section [COMP021-disaster-recovery] for more details.
-
-
-
-
-
-
-
-
-
-
-
-
-
+See section [COMP014.3-redundancy] for more details. Suppliers
+should also already be at least thinking about deploying to multiple
+regions and the database implications thereof.
 
 
 ## Infrastructure Description
