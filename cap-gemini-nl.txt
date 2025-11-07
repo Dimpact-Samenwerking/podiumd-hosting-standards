@@ -1,18 +1,27 @@
 Context
 
-Op basis van de Betrouwbaarheidspijler van het Azure Well-Architected Framework moeten we de verschillende operationele toestanden van onze systemen en componenten duidelijk definiëren en documenteren. Dit is essentieel voor juiste monitoring, geautomatiseerde responses, gezondheidscontroles en incident management.
+Op basis van de Betrouwbaarheidspijler van het Azure
+Well-Architected Framework moeten we de verschillende operationele
+toestanden van onze systemen en componenten duidelijk definiëren en
+documenteren. Dit is essentieel voor juiste monitoring,
+geautomatiseerde responses, gezondheidscontroles en incident
+management.
 
 Score: 41/200 (onvoldoende) - Hoogste prioriteit voor verbetering.
 
 Doelstellingen
 
-Documenteer Systeemtoestanden: Definieer duidelijke operationele toestanden voor alle systeemcomponenten
+Documenteer Systeemtoestanden: Definieer duidelijke operationele
+toestanden voor alle systeemcomponenten
 
-Standaardiseer Gezondheidsdefinities: Stel vast wat "gezond", "gedegradeerd" en "gefaald" betekent voor elke service
+Standaardiseer Gezondheidsdefinities: Stel vast wat "gezond",
+"gedegradeerd" en "gefaald" betekent voor elke service
 
-Verbeter Monitoring: Betere observabiliteit door goed gedefinieerde toestandsmonitoring
+Verbeter Monitoring: Betere observabiliteit door goed gedefinieerde
+toestandsmonitoring
 
-Automatisering: Geautomatiseerde systemen laten gefundeerde beslissingen nemen op basis van duidelijke toestanden
+Automatisering: Geautomatiseerde systemen laten gefundeerde
+beslissingen nemen op basis van duidelijke toestanden
 
 Incident Response: Duidelijk begrip van systeemstatus tijdens storingen
 
@@ -20,7 +29,8 @@ Belangrijkste Verbetergebieden (uit Capgemini rapport)
 
 1. Definieer Staten
 
-Bouw een gezondheidsmodel om de verschillende staten van je workload te definiëren en te monitoren:
+Bouw een gezondheidsmodel om de verschillende staten van je workload
+te definiëren en te monitoren:
 
 Gezond/Normaal: Systeem werkt binnen verwachte parameters
 
@@ -34,7 +44,9 @@ Herstel: Systeem keert terug naar normale werking na incident
 
 2. Configureer Gezondheidsprobes
 
-Zodra de definitie van gezonde diensten is vastgesteld, moet dit worden weerspiegeld in de manier waarop gezondheidsprobes zijn geconfigureerd in Kubernetes:
+Zodra de definitie van gezonde diensten is vastgesteld, moet dit
+worden weerspiegeld in de manier waarop gezondheidsprobes zijn
+geconfigureerd in Kubernetes:
 
 Liveness Probes: Controleren of container nog draait
 
@@ -80,11 +92,13 @@ Recovery Time Testing: RTO en RPO validatie
 
 Deliverables
 
-Toestandsdefinitie Documentatie: Uitgebreide documentatie van alle mogelijke toestanden
+Toestandsdefinitie Documentatie: Uitgebreide documentatie van alle
+mogelijke toestanden
 
 Health Check Standaarden: Gestandaardiseerde health check implementaties
 
-Monitoring Configuratie: Bijgewerkte monitoring die gedefinieerde toestanden weergeeft
+Monitoring Configuratie: Bijgewerkte monitoring die gedefinieerde
+toestanden weergeeft
 
 Probe Implementatie: Review en verbetering van bestaande Kubernetes probes
 
@@ -98,7 +112,8 @@ Health checks geven accuraat de servicestatus weer
 
 Monitoring dashboards tonen duidelijke systeemstatus
 
-Geautomatiseerde responses werken betrouwbaar op basis van gedefinieerde toestanden
+Geautomatiseerde responses werken betrouwbaar op basis van
+gedefinieerde toestanden
 
 Incident response tijden verbeteren door duidelijkere systeemvisibiliteit
 

@@ -8,55 +8,130 @@
 | 1.1 | 6/5/2024 | Jim Leitch |  |
 | 1.2 | 29/5/2024 | Jim Leitch | Dimpact/ICATT | Updated "k8s operators" |
 | 2024Q3 | 27/8/2024 | Jim Leitch | SSC | Converted to Markdown |
-| 2025Q4 | 27/10/2024 | Jim Leitch | Updated based on WAF, Google SRE, and Cap Gemini assessment |
+| 2025Q4 | 27/10/2024 | Jim Leitch | Updated based on WAF, Google SRE,
+  and Cap Gemini assessment |
 
 ## Executive Summary
 
-The PodiumD hosting environment runs a collection of Common Ground-Compliant resources currently hosted on Microsoft Azure.
+The PodiumD hosting environment runs a collection of Common
+Ground-Compliant resources currently hosted on Microsoft Azure.
 
-Development, Test, Acceptance and Production (OTAP) environments are provided for multiple Dutch city councils (municipalities) to host the PodiumD application, a replacement for the current E-suite workflow system as used by many municipalities.
+Development, Test, Acceptance and Production (OTAP) environments
+are provided for multiple Dutch city councils (municipalities) to
+host the PodiumD application, a replacement for the current E-suite
+workflow system as used by many municipalities.
 
-PodiumD is a collection of Open-Source components built by external software developers funded by the municipalities.
+PodiumD is a collection of Open-Source components built by external
+software developers funded by the municipalities.
 
-This document is meant to formalize what SSC (the hosting provider) expects from Dimpact (the contracting party) in terms of what Dimpact in-turn expect from their contracted software developers.
+This document is meant to formalize what Dimpact (the contracting party)
+expects from software publishers to be able to publish their software to 
+the PodiumD platform that can be reliably deployed and operated on the 
+PodiumD platform hosted by SSC Hosting.
 
-This document describes how SSC expects that software developers should package their software to be integrated into the SSC hosting environment and describes what can be expected from us, SSC Hosting, the hosting provider.
-
-Rather than this document **pre**scribing how developers should deliver their software, it is meant as a document that describes what SSC Hosting and the developers expect from each other. It will develop over time with input from all parties.
-
-The document will be hosted in a GIT repository and will be updated with versioning by means of Git Pull Requests.
+The document will be hosted in a GIT repository and will be updated
+with versioning by means of Git Pull Requests.
 
 ## Document Conventions
 
-We will use RFC-style terms to describe the level of requirements. As time goes on various aspects of this contract will be made more and less forceful: "**MUST**"/"**MUST** **NOT**"/"**SHOULD**"/"**SHOULD** **NOT**"/"**MAY**"
+We will use RFC-style terms to describe the level of requirements.
+As time goes on various aspects of this contract will be made more
+and less forceful: "**MUST**"/"**MUST** **NOT**"/"**SHOULD**"/"**SHOULD**
+**NOT**"/"**MAY**"
 
-([RFC 2119: Key words for use in RFCs to Indicate Requirement Levels (rfc-editor.org)](https://www.rfc-editor.org/rfc/rfc2119))
+([RFC 2119: Key words for use in RFCs to Indicate Requirement Levels
+(rfc-editor.org)](https://www.rfc-editor.org/rfc/rfc2119))
 
 ## Multiple Environments Require Easy Deployments
 
-It should be clear that applications being deployed will be deployed for multiple municipalities in multiple OTAP environments. This means that 100% automated deployment is a hard requirement for any applications being deployed.
+It should be clear that applications being deployed will be deployed
+for multiple municipalities in multiple OTAP environments. This
+means that 100% automated deployment is a hard requirement for any
+applications being deployed.
+
+## **Hot Items list**
+
+While this document is a work in progress, the following items
+are high priority and should be addressed BLAH BLAH MAHMUT
+SOMETHING HERE BLAH CAP GEMINI BLAH ETC ETC:
+
+#### Health Checks and Probes
+
+Clear health checks and probes via standard API endpoints. See 
+section [COMP014-healthchecks], especially [COMP014.1-health-states] 
+and [COMP014.2-probe-config] for more details.
+
+#### Upgradability 
+
+Applications must be able to be upgraded in a healthy and zero-downtime manner.
+Use database techniques that allow for a rolling upgrade of the database.
+See section [COMP006.2-upgrade-time-limit] for more details.
+
+#### High Availability
+
+Critical components must be able to survive a zone failure.
+See section [COMP014.3-redundancy] for more details.
+
+#### Monitoring and Alerting
+
+Applications must be able to be monitored and alerted on.
+See section [COMP018-alerting] for more details.
+
+
+#### Disaster Recovery
+
+Applications must be able to recover from a disaster.
+See section [COMP021-disaster-recovery] for more details.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Infrastructure Description
 
 ### Subscriptions / Environments
 
-Each customer/gemeente utilises a set of Azure Subscriptions. One subscription for each of the OTAP environments. This simplifies billing and provides security demarcation between the various environments, at customers, suppliers and OTAP level.
+Each customer/gemeente utilises a set of Azure Subscriptions. One
+subscription for each of the OTAP environments. This simplifies
+billing and provides security demarcation between the various
+environments, at customers, suppliers and OTAP level.
 
 Not every customer/supplier requires the full set of OTAP environments.
 
 ### Cloud Resource Provider
 
-We currently use Microsoft's Azure as our cloud platform. Our focus is currently on Microsoft Azure; however, we MAY in the future to use alternative cloud platforms. Any efforts made for deployment to our cloud platform should be generic, using open standards, keeping in mind that we may move to an alternative or even multi-cloud platform in the future.
+We currently use Microsoft's Azure as our cloud platform. Our focus
+is currently on Microsoft Azure; however, we MAY in the future to
+use alternative cloud platforms. Any efforts made for deployment to
+our cloud platform should be generic, using open standards, keeping
+in mind that we may move to an alternative or even multi-cloud
+platform in the future.
 
 ### Azure Resources
 
-The resources currently in our Azure cloud environment, in use and available are described below. In time we may migrate or simultaneously deploy in an alternative cloud environment such as Google / AWS / Private cloud.
+The resources currently in our Azure cloud environment, in use and
+available are described below. In time we may migrate or
+simultaneously deploy in an alternative cloud environment such as
+Google / AWS / Private cloud.
 
-Any new Azure resources required can be discussed going forward, this is current list:
+Any new Azure resources required can be discussed going forward, this
+is current list:
 
 - **Kubernetes** (k8s) – AKS
 
-  - We use standard AKS with two autoscaling groups of nodes, one for all application workloads, another for all management-type workloads.
+  - We use standard AKS with two autoscaling groups of nodes, one
+    for all application workloads, another for all management-type
+    workloads.
 
 - **Container Registry** – ACR
 
@@ -64,120 +139,180 @@ Any new Azure resources required can be discussed going forward, this is current
 
 - **SQL DBMS** - Azure Database for PostgreSQL flexible servers
 
-  - PostgreSQL 14 is our standard database server, one instance per environment with multiple databases inside the server, one per application.
+  - PostgreSQL 14 is our standard database server, one instance per
+    environment with multiple databases inside the server, one per
+    application.
 
   - Database Timezone is UTC
 
 - **Edge Load Balancer** - Azure Application Gateway
 
-  - Azure Load Balancer is our internet-facing endpoint, providing SSL termination, HTTP -> HTTPS redirection, URL rewriting and distribution of traffic to the appropriate K8S cluster. We have one load balancer for ONTW/TEST and another for ACCP/PROD.
+  - Azure Load Balancer is our internet-facing endpoint, providing
+    SSL termination, HTTP -> HTTPS redirection, URL rewriting and
+    distribution of traffic to the appropriate K8S cluster. We have
+    one load balancer for ONTW/TEST and another for ACCP/PROD.
 
-  - We may in future choose to use our on-premises Palo Alto and GW services for this function
+  - We may in future choose to use our on-premises Palo Alto and GW
+    services for this function
 
 - **Storage** - Azure Storage Accounts
 
-  - Azure storage accounts are used for provision of Blob storage and Azure File Shares (SMB and NFS)
+  - Azure storage accounts are used for provision of Blob storage and
+    Azure File Shares (SMB and NFS)
 
 - **Secret and Certificate Management** – Azure Key Vault
 
-  - Azure Key Vault is the single source of truth for all certificates and secrets
+  - Azure Key Vault is the single source of truth for all
+    certificates and secrets
 
 - **Identity Management** - Active Directory / Entra ID
 
-  - Azure Entra ID SHOULD be used as the only method of Identity Management. If another identity tool is used, a waiver must be obtained with a plan for future migration to Entra.
+  - Azure Entra ID SHOULD be used as the only method of Identity
+    Management. If another identity tool is used, a waiver must be
+    obtained with a plan for future migration to Entra.
 
 - **Deployment Orchestration -** Azure DevOps
 
-  - Azure DevOps is our CICD orchestration tool, used for deployment of infrastructure, application deployment and other management tasks. We use a mixture of Terraform and bash scripting with az cli commands to build and maintain our infrastructure.
+  - Azure DevOps is our CICD orchestration tool, used for deployment
+    of infrastructure, application deployment and other management
+    tasks. We use a mixture of Terraform and bash scripting with az
+    cli commands to build and maintain our infrastructure.
 
 - **Infra Lifecycle**
 
-  - Most Azure infrastructure resources (storage, databases) have very long lifecycles.
+  - Most Azure infrastructure resources (storage, databases) have very
+    long lifecycles.
 
-  - Kubernetes versions are handled frequently with the assistance of Azure Fleet Manager and will be updated on a regular monthly cycle ***ontw/test/accp/prod*** with one week between each environment type, meaning that any non-critical k8s patches will have been running in ONTW for 3 weeks before production is patched
+  - Kubernetes versions are handled frequently with the assistance of
+    Azure Fleet Manager and will be updated on a regular monthly
+    cycle ***ontw/test/accp/prod*** with one week between each
+    environment type, meaning that any non-critical k8s patches will
+    have been running in ONTW for 3 weeks before production is
+    patched
 
-  - Upgrades to other resources such as RDBMS and storage will be announced well in advance to allow suppliers to test their applications with the new versions and to work on and plan an upgrade path for the application if required.
+  - Upgrades to other resources such as RDBMS and storage will be
+    announced well in advance to allow suppliers to test their
+    applications with the new versions and to work on and plan an
+    upgrade path for the application if required.
 
 ## Azure Application Gateway
 
-Azure application gateway can rewrite HTTP headers. At this moment we apply only one header rewrite for HSTS purposes as follows:
+Azure application gateway can rewrite HTTP headers. At this moment
+we apply only one header rewrite for HSTS purposes as follows:
 
-We have not made any other changes to the AGW settings. For any other default settings please refer to the MS Azure documentation, any changes to default settings will be reflected in this document.
+We have not made any other changes to the AGW settings. For any
+other default settings please refer to the MS Azure documentation,
+any changes to default settings will be reflected in this document.
 
 HTTP2 support is currently DISABLED in the AGW.
 
 ### Non – Azure Native Shared Resources
 
-Some resources are not available as Azure native services and are instead deployed inside the Kubernetes cluster:
+Some resources are not available as Azure native services and are
+instead deployed inside the Kubernetes cluster:
 
 ### SSL Certificates (FrontEnd)
 
-- We use SSL certificates from **LetsEncrypt**. The certificates are automatically requested and downloaded for every web facing service by the cert-manager application inside the cluster. Certificates and keys are then stored in the Azure Key Vault. They are then subsequently deployed to the listeners in the Application Gateway.
+- We use SSL certificates from **LetsEncrypt**. The certificates are
+  automatically requested and downloaded for every web facing service
+  by the cert-manager application inside the cluster. Certificates
+  and keys are then stored in the Azure Key Vault. They are then
+  subsequently deployed to the listeners in the Application Gateway.
 
-- SSL Certificates used internally between apps and legacy system are out-of-scope of this discussion.
+- SSL Certificates used internally between apps and legacy system are
+  out-of-scope of this discussion.
 
 ### Cost management
 
-In future we may be able to provide extra cost management tooling using the billing data stored.
+In future we may be able to provide extra cost management tooling
+using the billing data stored.
 
 ### Environments (OTAP)
 
-Each municipality and organization has the possibility to run O,T,A and/or P organizations, defined as follows:
+Each municipality and organization has the possibility to run O,T,A
+and/or P organizations, defined as follows:
 
 #### DEVELOPMENT(ONTWIKKEL)
 
-Ontwikkel (development) environments are meant to verify proper working of the software in a production-similar environment. Developers are free to deploy container versions and new helm charts in this environment. Changes to Azure resources and the k8s cluster are performed by SCC hosting in an updated version of the environment.
+Ontwikkel (development) environments are meant to verify proper
+working of the software in a production-similar environment.
+Developers are free to deploy container versions and new helm charts
+in this environment. Changes to Azure resources and the k8s cluster
+are performed by SCC hosting in an updated version of the
+environment.
 
-To save on cloud costs we switch all dev, test and acceptance environment off in the evening and at weekends. If any individual environments need to be kept on for any reason for a short period of time, this can be accommodated.
+To save on cloud costs we switch all dev, test and acceptance
+environment off in the evening and at weekends. If any individual
+environments need to be kept on for any reason for a short period of
+time, this can be accommodated.
 
 #### Test
 
-Test environments are meant for the municipalities to test new application features and provide training facilities to staff.
+Test environments are meant for the municipalities to test new
+application features and provide training facilities to staff.
 
 #### Acceptance
 
-Acceptance environments are 100% like-for-like with production environments. Hardware resources are the same as production and copies of production data.
+Acceptance environments are 100% like-for-like with production
+environments. Hardware resources are the same as production and
+copies of production data.
 
 #### Production
 
-Production is of course the environment per customer/municipality that has maximum uptime, monitoring, and resources.
+Production is of course the environment per customer/municipality
+that has maximum uptime, monitoring, and resources.
 
 ## Deployment- Azure DevOps Pipelines
 
-Deployment of applications to the k8s cluster are done by an Azure DevOps Pipeline to deploy a Helm Chart. Any other infrastructure preparation is done by Terraform files and/or bash scripts running "az cli" commands.
+Deployment of applications to the k8s cluster are done by an Azure
+DevOps Pipeline to deploy a Helm Chart. Any other infrastructure
+preparation is done by Terraform files and/or bash scripts running
+"az cli" commands.
 
 ## What We Expect
 
-We expect that Dimpact will require suppliers to deliver the applications in a way that allows for secure, scalable, stable, manageable, and easily deployable systems.
+We expect that Dimpact will require suppliers to deliver the
+applications in a way that allows for secure, scalable, stable,
+manageable, and easily deployable systems.
 
 ### Naming Conventions [COMP001-naming]
 
-All application and parameter naming should be uniform to allow for a minimum of repeated configuration. 
+All application and parameter naming should be uniform to allow for a
+minimum of repeated configuration.
 
 **Service Naming Standards:**
 
-- Service names MUST follow a consistent pattern: `{domain}-{function}-service` (e.g., `zaak-processing-service`, `klant-api-service`)
+- Service names MUST follow a consistent pattern:
+  `{domain}-{function}-service` (e.g., `zaak-processing-service`,
+  `klant-api-service`)
 - Service names MUST use lowercase with hyphens as separators
 - Service names MUST be descriptive and reflect the business domain
 - Service names MUST be consistent across all environments (OTAP)
 - Helm chart names MUST match the service name
-- Kubernetes namespaces SHOULD follow the pattern: `{customer}-{service-name}` or use a single namespace per recognizable component
+- Kubernetes namespaces SHOULD follow the pattern:
+  `{customer}-{service-name}` or use a single namespace per
+  recognizable component
 - Container image names MUST use the service name as base
 - API endpoint paths SHOULD use the service domain name for consistency
 
 **Naming Examples:**
-- Good: `klant-management-service`, `zaak-api-service`, `document-storage-service`
+- Good: `klant-management-service`, `zaak-api-service`,
+  `document-storage-service`
 - Avoid: `service1`, `api`, `app-x`, `temp-service`
 
-Dimpact will provide examples of parameter naming to be used in the umbrella helm chart.
+Dimpact will provide examples of parameter naming to be used in the
+umbrella helm chart.
 
 ### Versioning [COMP002-versioning]
 
-PodiumD consists of a suite of sub-applications. The PodiumD version is defined by the versions of the sub-applications.
+PodiumD consists of a suite of sub-applications. The PodiumD version
+is defined by the versions of the sub-applications.
 
 ### Version API Endpoint [COMP002.1-version-api]
 
-- [COMP002.1-version-api] Each application/component MUST expose a standardized version API endpoint at `/api/v1/version` or `/health/version`
+- [COMP002.1-version-api] Each application/component MUST expose a
+  standardized version API endpoint at `/api/v1/version` or
+  `/health/version`
 
 - The version endpoint MUST return the following information in JSON format:
   - Application/component name
@@ -205,25 +340,39 @@ PodiumD consists of a suite of sub-applications. The PodiumD version is defined 
 
 ### Containers
 
-- [COMP003.1-app-as-containers] Applications MUST be delivered as one or a set of application containers
+- [COMP003.1-app-as-containers] Applications MUST be delivered as one
+  or a set of application containers
 
-- [COMP003.3-container-registry] These containers MUST be available via a public Container Registry such as **Docker Hub**
+- [COMP003.3-container-registry] These containers MUST be available
+  via a public Container Registry such as **Docker Hub**
 
 - Non-open-source containers MAY be available secured by a key/token.
 
-- [COMP003.3-semantic-versioning] Container labels MUST be "semantically versioned."
+- [COMP003.3-semantic-versioning] Container labels MUST be
+  "semantically versioned."
 
-- Prelease versions MAY be deployed with version + keyword (e.g., 1.2.3-snapshot)
+- Prelease versions MAY be deployed with version + keyword (e.g.,
+  1.2.3-snapshot)
 
-SSC hosting will copy containers from the supplier's own container registry to a Container Registry in the SSC Azure environment.
+SSC hosting will copy containers from the supplier's own container
+registry to a Container Registry in the SSC Azure environment.
 
 ### Timezone [COMP004-timezone]
 
-For logging and monitoring purposes, the timezone for applications should be **UTC**. The default timezone for the database is UTC, all logging and metrics should be set to provide UTC output. Of course any end-user interaction should be presented to the client in the appropriate local timezone.
+For logging and monitoring purposes, the timezone for applications
+should be **UTC**. The default timezone for the database is UTC, all
+logging and metrics should be set to provide UTC output. Of course
+any end-user interaction should be presented to the client in the
+appropriate local timezone.
 
 ### Software Supply Chain [COMP005-software-supply-chain]
 
-SSC Hosting will scan all containers for vulnerabilities on a regular basis. Containers delivered MUST be already scanned for vulnerabilities by the supplier. Any vulnerabilities that are flagged MUST be fixed, mitigated and/or receive a waiver from all system architects of supplier + Dimpact + SSC Hosting within a specified time limit.
+SSC Hosting will scan all containers for vulnerabilities on a regular
+basis. Containers delivered MUST be already scanned for
+vulnerabilities by the supplier. Any vulnerabilities that are flagged
+MUST be fixed, mitigated and/or receive a waiver from all system
+architects of supplier + Dimpact + SSC Hosting within a specified
+time limit.
 
 An example of code-level scanning would be SonarQube:
 
@@ -235,15 +384,19 @@ An example of container scanning would be GitHub container scanning:
 
 ### Scalability and Startup/Shutdown
 
-Apart from where inappropriate, applications SHOULD gracefully handle load-based up and down-scaling of containers.
+Apart from where inappropriate, applications SHOULD gracefully handle
+load-based up and down-scaling of containers.
 
-[COMP006.1-stop-start-safe] Application MUST be able to withstand sudden stops and starts (for example a node failing or container-node migration event)
+[COMP006.1-stop-start-safe] Application MUST be able to withstand
+sudden stops and starts (for example a node failing or container-node
+migration event)
 
 Applications MAY be deployed with init containers, startup and shutdown scripts.
 
 ### Component Upgrade Time Limits [COMP006.2-upgrade-time-limit]
 
-- [COMP006.2-upgrade-time-limit] Any upgrade or deployment of a component MUST complete within **15 minutes maximum**
+- [COMP006.2-upgrade-time-limit] Any upgrade or deployment of a
+  component MUST complete within **15 minutes maximum**
 
 - This includes:
   - Container image pull time
@@ -251,7 +404,8 @@ Applications MAY be deployed with init containers, startup and shutdown scripts.
   - Health check stabilization
   - Rolling update completion
 
-- Deployments taking longer than 15 minutes MUST be split into multiple phases or require architectural review
+- Deployments taking longer than 15 minutes MUST be split into
+  multiple phases or require architectural review
 
 - Zero-downtime deployments are STRONGLY RECOMMENDED using:
   - Rolling updates with appropriate readiness probes
@@ -265,43 +419,70 @@ Applications MAY be deployed with init containers, startup and shutdown scripts.
 
 ### Helm Charts . Deployment
 
-- Dimpact will curate and provide all required Helm charts in one single repository
+- Dimpact will curate and provide all required Helm charts in one
+  single repository
 
-- [COMP007.1-helm] All applications MUST be accompanied by Helm Charts. Applications MAY use helm sub-charts and MUST be able to be deployed as a sub-chart themselves to facilitate and contribute to a complete "umbrella" installation of the PodiumD platform.
+- [COMP007.1-helm] All applications MUST be accompanied by Helm
+  Charts. Applications MAY use helm sub-charts and MUST be able to be
+  deployed as a sub-chart themselves to facilitate and contribute to
+  a complete "umbrella" installation of the PodiumD platform.
 
-- [COMP007.2-operators] We do not support the use of applications and components deployed by means of Kubernetes Operators **unless** the installation and use of the operators can be encapsulated inside a single Umbrella Helm chart.
+- [COMP007.2-operators] We do not support the use of applications and
+  components deployed by means of Kubernetes Operators **unless** the
+  installation and use of the operators can be encapsulated inside a
+  single Umbrella Helm chart.
 
-- [COMP007.3-dependancy-apps] Any dependency-applications MUST be deployed as Helm sub-charts.
+- [COMP007.3-dependancy-apps] Any dependency-applications MUST be
+  deployed as Helm sub-charts.
 
-- The application itself MUST be deployable as a sub chart as part of an over-encompassing PodiumD Helm chart. Over time all parties should work to harmonize variable naming in the Helm charts
+- The application itself MUST be deployable as a sub chart as part of
+  an over-encompassing PodiumD Helm chart. Over time all parties
+  should work to harmonize variable naming in the Helm charts
 
-- Deployments SHOULD be performed as a rolling update – unless waiver has been granted. Deployments and upgrades that involve database changes are currently exempt from this requirement.
+- Deployments SHOULD be performed as a rolling update – unless waiver
+  has been granted. Deployments and upgrades that involve database
+  changes are currently exempt from this requirement.
 
-- Helm charts SHOULD be available via the same artifacts' repository as the containers
+- Helm charts SHOULD be available via the same artifacts' repository
+  as the containers
 
-- [COMP007.4-storage] Helm chart MUST support storage type via SSC's own storage choices (if file storage is required)
+- [COMP007.4-storage] Helm chart MUST support storage type via SSC's
+  own storage choices (if file storage is required)
 
-- [COMP007.5-ingress] Helm chart MUST support ingress that allows for SSC's own ingress choices (if ingress in required)
+- [COMP007.5-ingress] Helm chart MUST support ingress that allows for
+  SSC's own ingress choices (if ingress in required)
 
-- [COMP007.5-database] Helm chart MUST support external cloud database usage (if database is required)
+- [COMP007.5-database] Helm chart MUST support external cloud
+  database usage (if database is required)
 
 ### K8s Namespaces
 
-PodiumD as a whole is deployed in one single "podiumd" kubernetes namespace.
+PodiumD as a whole is deployed in one single "podiumd" kubernetes
+namespace.
 
-~~SSC hosting uses one single k8s namespace per recognizable (openforms, objects etc.) component. Components must be deployed into its own namespace in Kubernetes cluster.~~
+~~SSC hosting uses one single k8s namespace per recognizable
+(openforms, objects etc.) component. Components must be deployed into
+its own namespace in Kubernetes cluster.~~
 
-~~The name of the namespace will always be the same as the name of the application as defined in the helm chart.~~
+~~The name of the namespace will always be the same as the name of
+the application as defined in the helm chart.~~
 
 ### 100% Automation
 
-[COMP008.1-100percent-automated] PodiumD software will be deployed to many customers and environments, for this reason, all components of the application MUST be possible to deploy completely from the Helm chart.
+[COMP008.1-100percent-automated] PodiumD software will be deployed
+to many customers and environments, for this reason, all components
+of the application MUST be possible to deploy completely from the
+Helm chart.
 
-In this case – 100% deployment means the containers running correctly inside the K8s cluster with the correct deployment parameters and secrets, connecting to other resources such as databases and other PodiumD applications.
+In this case – 100% deployment means the containers running correctly
+inside the K8s cluster with the correct deployment parameters and
+secrets, connecting to other resources such as databases and other
+PodiumD applications.
 
 Final configuration "inside" of the application is out of this scope.
 
-To help understanding of each area of deployment, development party Maykin Media produced this useful set of definitions:
+To help understanding of each area of deployment, development party
+Maykin Media produced this useful set of definitions:
 
 > **• OTAP-omgevingen**
 >
@@ -309,33 +490,43 @@ To help understanding of each area of deployment, development party Maykin Media
 >
 > **• Platform**
 >
-> Set aan componenten die in samenhang een oplossing bieden (bijv. Open Zaak en ZAC)
+> Set aan componenten die in samenhang een oplossing bieden (bijv.
+> Open Zaak en ZAC)
 >
 > **• Installatie**
 >
-> Het deployen van een component (bijv. Helm chart uitvoeren zodat Open Zaak en ZAC technisch draaien)
+> Het deployen van een component (bijv. Helm chart uitvoeren zodat
+> Open Zaak en ZAC technisch draaien)
 >
 > **• Configuratie**
 >
-> Parameters zodat de component kan doen wat het moet doen (bijv. de koppeling tussen ZAC en Open Zaak)
+> Parameters zodat de component kan doen wat het moet doen (bijv. de
+> koppeling tussen ZAC en Open Zaak)
 >
 > **• Inrichting**
 >
-> Functionele vulling van het component evt. met hele specifieke configuratie (bijv. zaaktypen, processen)
+> Functionele vulling van het component evt. met hele specifieke
+> configuratie (bijv. zaaktypen, processen)
 
 #### Application Addressing
 
 Dimpact will provide application URLS for all public facing applications.
 
-Dimpact will liase with gemeentes as to the application addressing used and for crestion of appropriate hostnames and cnames.
+Dimpact will liase with gemeentes as to the application addressing
+used and for crestion of appropriate hostnames and cnames.
 
 ### Communication Between Components
 
-[COMP009-internal-communication] Communication between components inside the same k8s cluster SHOULD take place inside the cluster. Communication and data transfer between components SHOULD take place via the APIs.
+[COMP009-internal-communication] Communication between components
+inside the same k8s cluster SHOULD take place inside the cluster.
+Communication and data transfer between components SHOULD take place
+via the APIs.
 
 ### Database Migrations
 
-[COMP010-sql-migration-scripts] Applications MUST have all database migrations built in or provide config scripts for a DB migration tool such as Flyway or Liquibase.
+[COMP010-sql-migration-scripts] Applications MUST have all database
+migrations built in or provide config scripts for a DB migration tool
+such as Flyway or Liquibase.
 
 ### Application concurrency / Statelessness
 
@@ -345,9 +536,13 @@ Dimpact will liase with gemeentes as to the application addressing used and for 
 
 - Files MAY be written to cloud file shares.
 
-- [COMP011-no-local-storage] Persistent files containing any data MUST NOT be written to local storage on the container but instead to a kubernetes PV.
+- [COMP011-no-local-storage] Persistent files containing any data
+  MUST NOT be written to local storage on the container but instead
+  to a kubernetes PV.
 
-- [COMP011-permanent-data] Permanent data that requires to be backed up must be written to a file share created outside of the K8s cluster
+- [COMP011-permanent-data] Permanent data that requires to be backed
+  up must be written to a file share created outside of the K8s
+  cluster
 
 ### FILES
 
@@ -365,21 +560,31 @@ Files MAY be stored in the following storage types, in order of preference:
 
 - Environment variables SHOULD be set via config maps in the helm chart.
 
-- [COMP012-secrets] Secret/sensitive information MUST be written to the K8s secrets store.
+- [COMP012-secrets] Secret/sensitive information MUST be written to
+  the K8s secrets store.
 
 - Secrets will be sourced and read from the Azure Key Vault at deployment-time.
 
-- Application logging verbosity SHOULD be enabled by setting a debug environment variable and restarting the container.
+- Application logging verbosity SHOULD be enabled by setting a debug
+  environment variable and restarting the container.
 
 ### SSL Certificates
 
-[COMP013-ssl] Application end points MUST be presented as HTTP, unencrypted. Our Public-facing Azure Application Gateway performs SSL termination and guarantees a secure path to the k8s cluster via the Azure VWAN and Virtual Hub facilities. The Azure Application Gateway listeners are populated by Lets Encrypt SSL certificates at deploy-time
+[COMP013-ssl] Application end points MUST be presented as HTTP,
+unencrypted. Our Public-facing Azure Application Gateway performs SSL
+termination and guarantees a secure path to the k8s cluster via the
+Azure VWAN and Virtual Hub facilities. The Azure Application Gateway
+listeners are populated by Lets Encrypt SSL certificates at
+deploy-time
 
 ### Health Checks and Probes
 
-[COMP014-healthchecks] Applications MUST ensure availability of probe endpoints to allow for correct handling of starting, running and failing containers.
+[COMP014-healthchecks] Applications MUST ensure availability of probe
+endpoints to allow for correct handling of starting, running and
+failing containers.
 
-**Enhanced Health Check Requirements based on Azure Well-Architected Framework:**
+**Enhanced Health Check Requirements based on Azure
+Well-Architected Framework:**
 
 #### Health State Definitions [COMP014.1-health-states]
 
@@ -422,7 +627,8 @@ Applications MUST implement all three types of probes:
 - Determines if container needs to be restarted
 - MUST be simple and fast (< 1 second response time)
 - Should NOT check dependencies
-- Example: Simple HTTP endpoint returning 200 OK if application can accept requests
+- Example: Simple HTTP endpoint returning 200 OK if application can
+  accept requests
 
 **Readiness Probe:**
 - Determines if container can receive traffic
@@ -443,25 +649,31 @@ Applications MUST implement all three types of probes:
 - Period should balance responsiveness with load
 - Timeout should account for network variability
 
-See [Configure Liveness, Readiness and Startup Probes | Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
+See [Configure Liveness, Readiness and Startup Probes |
+Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/
+configure-liveness-readiness-startup-probes/)
 
 ### Redundancy and Fault Tolerance [COMP014.3-redundancy]
 
 Based on Azure Well-Architected Framework reliability pillar:
 
 **Multi-Zone Deployment:**
-- Production deployments SHOULD spread replicas across multiple Azure Availability Zones
+- Production deployments SHOULD spread replicas across multiple Azure
+  Availability Zones
 - Minimum 3 replicas for critical services
 - Pod anti-affinity rules SHOULD be used to prevent co-location
 
 **Retry Mechanisms:**
-- Applications MUST implement exponential backoff for retrying failed requests
+- Applications MUST implement exponential backoff for retrying failed
+  requests
 - Maximum retry attempts should be configurable
-- Circuit breaker pattern SHOULD be implemented for external dependencies
+- Circuit breaker pattern SHOULD be implemented for external
+  dependencies
 
 **Load Balancing:**
 - Traffic MUST be distributed across multiple instances
-- Session affinity SHOULD be avoided where possible for better distribution
+- Session affinity SHOULD be avoided where possible for better
+  distribution
 - Health checks must remove unhealthy instances from rotation
 
 **Pod Disruption Budgets:**
@@ -473,27 +685,43 @@ Based on Azure Well-Architected Framework reliability pillar:
 
 ### Monitoring
 
-Monitoring is the combination of aggregating logs and metrics to ascertain if the application is working as expected, hopefully before the end user is affected and allow us to react in time to fix the problem and/or underlying issue.
+Monitoring is the combination of aggregating logs and metrics to
+ascertain if the application is working as expected, hopefully before
+the end user is affected and allow us to react in time to fix the
+problem and/or underlying issue.
 
 ### Infra monitoring
 
-The infrastructure (resources such as k8s, edge gateway, databases etc.) SHALL be monitored for errors as exported to Azure. Other metrics such as CPU capacity, disk IO should be used to ensure rightsizing and autoscaling of resources.
+The infrastructure (resources such as k8s, edge gateway, databases
+etc.) SHALL be monitored for errors as exported to Azure. Other
+metrics such as CPU capacity, disk IO should be used to ensure
+rightsizing and autoscaling of resources.
 
 ### Logging
 
-- [COMP015.1-logging-to-stdout] Applications MUST stream all logging to STDOUT. These logs will be captured and sent to the appropriate logging endpoint.
+- [COMP015.1-logging-to-stdout] Applications MUST stream all logging
+  to STDOUT. These logs will be captured and sent to the appropriate
+  logging endpoint.
 
-- Application logging MUST be configurable via a LOGLEVEL environment variable following standard usage for DEBUG, INFO, WARN, ERROR, and FATAL log levels.
+- Application logging MUST be configurable via a LOGLEVEL environment
+  variable following standard usage for DEBUG, INFO, WARN, ERROR, and
+  FATAL log levels.
 
-- Applications logs SHOULD be written in JSON format to allow proper parsing in the Logging system. (see <https://betterstack.com/community/guides/logging/json-logging/>)
+- Applications logs SHOULD be written in JSON format to allow proper
+  parsing in the Logging system. (see
+  <https://betterstack.com/community/guides/logging/json-logging/>)
 
-- Applications MAY write relevant logging information in a form that can be read in the application, but this MUST be in addition to the logs written to STDOUT.
+- Applications MAY write relevant logging information in a form that
+  can be read in the application, but this MUST be in addition to the
+  logs written to STDOUT.
 
-- [COMP016.2-utc-logs] Log lines MUST be written with timestamps in UTC format, no time zone.
+- [COMP016.2-utc-logs] Log lines MUST be written with timestamps in
+  UTC format, no time zone.
 
 ### Metrics - Golden Signals [COMP017-golden-signals]
 
-Based on Google SRE best practices, applications MUST provide metrics for the four golden signals:
+Based on Google SRE best practices, applications MUST provide metrics
+for the four golden signals:
 
 **1. Latency [COMP017.1-latency-metrics]**
 - Request duration/response time
@@ -534,7 +762,8 @@ Based on Google SRE best practices, applications MUST provide metrics for the fo
 
 **Additional Application Metrics:**
 
-Applications SHOULD provide metrics that make sense for the application in hand, for example:
+Applications SHOULD provide metrics that make sense for the
+application in hand, for example:
 
 - Number of Transactions
 - Transaction latency
@@ -545,17 +774,21 @@ Applications SHOULD provide metrics that make sense for the application in hand,
 **Metrics Implementation:**
 
 - Metrics SHOULD be exposed in Prometheus format at `/metrics` endpoint
-- Metrics MUST include appropriate labels for filtering (environment, version, instance)
+- Metrics MUST include appropriate labels for filtering (environment,
+  version, instance)
 - Metrics collection SHOULD have minimal performance impact (< 1% overhead)
 - Counter metrics SHOULD be monotonically increasing
 - Gauge metrics SHOULD represent current values
 - Histogram metrics SHOULD be used for latency measurements
 
-The metrics can then be scraped by (for example) Prometheus to display in graph form, for analysis and for alerting purposes.
+The metrics can then be scraped by (for example) Prometheus to display
+in graph form, for analysis and for alerting purposes.
 
-Metrics are an ongoing discussion and will always be updated and improved throughout the lifecycle of the application.
+Metrics are an ongoing discussion and will always be updated and
+improved throughout the lifecycle of the application.
 
-The following article gives a thorough discussion on the use of metrics usage in Kubernetes:
+The following article gives a thorough discussion on the use of
+metrics usage in Kubernetes:
 
 <https://sysdig.com/blog/golden-signals-kubernetes/>
 
@@ -574,8 +807,10 @@ Based on Google SRE principles:
   - Relevant runbook links
 
 **Alert Severity Levels:**
-1. **Critical/P1**: Production down, major functionality broken, immediate action required
-2. **Warning/P2**: Degraded performance, potential issue, action required within business hours
+1. **Critical/P1**: Production down, major functionality broken,
+   immediate action required
+2. **Warning/P2**: Degraded performance, potential issue, action
+   required within business hours
 3. **Info/P3**: Informational, no immediate action required
 
 **SLO-Based Alerting [COMP018.1-slo-alerting]:**
@@ -628,7 +863,9 @@ Each production service MUST define:
 
 ### Resource requirements
 
-[COMP020-resource-recommendations] As part of the Helm chart, applications MUST provide an estimate of CPU/Disk/Memory for a certain baseline, with resources required to operate the application
+[COMP020-resource-recommendations] As part of the Helm chart,
+applications MUST provide an estimate of CPU/Disk/Memory for a
+certain baseline, with resources required to operate the application
 
 **Resource Specification Requirements:**
 
@@ -646,7 +883,8 @@ Applications MUST specify:
 
 For Example:
 
-For application **X** to be able to process **Y** transactions per minute, we recommend:
+For application **X** to be able to process **Y** transactions per
+minute, we recommend:
 
 - Requests: 1000 milliCPU, 512MB RAM
 - Limits: 2000 milliCPU, 1GB RAM
@@ -692,7 +930,11 @@ Each application MUST define:
 
 ### DNS Naming Conventions
 
-Applications MUST support access from *ANY* URL simultaneously. There should be no restiction on changing application URLS at any point in time. If a gemeente decide to change the URL that citizens access the application from, this should not require any database updates. 
+Applications MUST support access from *ANY* URL simultaneously.
+There should be no restiction on changing application URLS at any
+point in time. If a gemeente decide to change the URL that citizens
+access the application from, this should not require any database
+updates.
 
 Applications MUST be accessible via:
 
@@ -701,19 +943,24 @@ Applications MUST be accessible via:
 - kubernetes internal DNS naming: openzaak.podiumd.svc.cluster.local
 - relative path domain name: gemeente.nl/formulieren 
 
-More information can be found here: https://dimpact.atlassian.net/wiki/spaces/PCP/pages/175865864/Toegang+API+s+via+verschillende+domeinnamen+waaronder+interne+toegang
+More information can be found here:
+<https://dimpact.atlassian.net/wiki/spaces/PCP/pages/175865864/
+Toegang+API+s+via+verschillende+domeinnamen+waaronder+interne+toegang>
 
 ## Deployment Verzoek
 
-Deployment requests take the form of a "Deployment Verzoek", a form filled in with all relevant data required for deployment.
+Deployment requests take the form of a "Deployment Verzoek", a form
+filled in with all relevant data required for deployment.
 
 ### Release notes
 
-[COMP022-release-notes] The following information MUST be contained in the application release notes:
+[COMP022-release-notes] The following information MUST be contained
+in the application release notes:
 
 - Full description of parameters needed for HELM deploy.
 
-- Full description of possible output parameters (eg API keys generated at deploy time)
+- Full description of possible output parameters (eg API keys
+  generated at deploy time)
 
 - Dependencies on earlier versions of the application
 
@@ -914,18 +1161,128 @@ Applications handling personal data MUST:
 
 ## References
 
-[Architecting Applications for Kubernetes | DigitalOcean](https://www.digitalocean.com/community/tutorials/architecting-applications-for-kubernetes)
+[Architecting Applications for Kubernetes |
+DigitalOcean](https://www.digitalocean.com/community/tutorials/
+architecting-applications-for-kubernetes)
 
-[Free Guide: Our 15 Principles for Designing and Deploying Scalable Applications on Kubernetes (elastisys.com)](https://elastisys.com/designing-and-deploying-scalable-applications-on-kubernetes/)
+[Free Guide: Our 15 Principles for Designing and Deploying Scalable
+Applications on Kubernetes
+(elastisys.com)](https://elastisys.com/designing-and-deploying-scalable-
+applications-on-kubernetes/)
 
 <https://sysdig.com/blog/golden-signals-kubernetes/>
 
-[Microsoft Well-Architected Framework for Azure Kubernetes Service](https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-kubernetes-service)
+[Microsoft Well-Architected Framework for Azure Kubernetes
+Service](https://learn.microsoft.com/en-us/azure/well-architected/
+service-guides/azure-kubernetes-service)
 
-[Google SRE: Monitoring Distributed Systems](https://sre.google/sre-book/monitoring-distributed-systems/)
+[Google SRE: Monitoring Distributed
+Systems](https://sre.google/sre-book/monitoring-distributed-systems/)
 
-[Google SRE: Service Level Objectives](https://sre.google/sre-book/service-level-objectives/)
+[Google SRE: Service Level
+Objectives](https://sre.google/sre-book/service-level-objectives/)
 
-[Kubernetes Best Practices](https://kubernetes.io/docs/concepts/configuration/overview/)
+[Kubernetes Best
+Practices](https://kubernetes.io/docs/concepts/configuration/overview/)
 
-[Azure Best Practices for AKS](https://learn.microsoft.com/en-us/azure/aks/best-practices)
+[Azure Best Practices for
+AKS](https://learn.microsoft.com/en-us/azure/aks/best-practices)
+
+Vooraf willen we benadrukken dat we begrijpen dat dit frustrerend is.
+In een escalatie valt de blik al snel op de hoster, en dat snappen we ook:
+jullie zijn afhankelijk van de informatie die jullie krijgen uit verschillende
+bronnen. Tegelijk is dit geen kwestie van één schuldige partij, maar van
+een keten van keuzes en aannames. Met deze reactie willen we helder maken
+wat er feitelijk is gebeurd en wie waar aan zet is.
+
+De aanname dat dit een gateway- of isolatieprobleem is, klopt niet. Onze
+OTAP-omgevingen (ontwikkel, test, acceptatie en productie) zijn gescheiden
+en geïsoleerd ingericht, met per omgeving eigen infrastructuur, eigen
+Kubernetes-cluster en eigen ingress controllers. De twee Azure Application
+Gateways (één voor OT, één voor AP) zijn een bewuste architectuur- én
+kostenkeuze vanuit het PodiumD-landschap. We willen benadrukken dat deze
+inrichting in deze analyse niet de oorzaak is van de time-outs.
+
+Deze opzet is destijds gekozen omdat dit één van de veiligere en beter
+beheersbare keuzes/varianten is, ook al was deze scheiding niet als harde
+eis geformuleerd. Deze inrichting is bekend bij de architechtuurraad van
+Dimpact en maakt onderdeel uit van de periodieke audits die wij aanleveren.
+
+De melding is in eerste instantie ingestoken vanuit een verkeerde
+afbakening: er werd gesteld dat de problemen alleen optraden in een
+specifiek tijdvak rond het 's ochtends opstarten van OTA-omgevingen.
+Belangrijk daarbij is dat het uit/aan-proces uitsluitend voor OTA
+(ontwikkel, test, acceptatie) bedoeld is, niet voor productie. Het is een
+begrijpelijke kostenbesparende keuze geweest vanuit Dimpact, maar in OTA
+heeft dit wel bijeffecten.
+
+Eén van de bijeffecten is dat, als men gebruik maakt van de
+best-practices, dan worden de OTA-nodes 's nachts letterlijk vervangen, en
+zullen image-caches worden verwijderd en moeten container-images 's ochtends
+opnieuw worden binnengehaald. We hebben het afwijken van deze standaard
+best-practice onderzocht en hiervoor aanpassingen gedaan in de policies,
+maar we voeren die niet ad hoc door: zulke wijzigingen kunnen ook impact
+hebben op het automatisch vrijgeven van nodes en worden daarom eerst
+zorgvuldig in onze eigen OTA-straat getest.
+
+Gedurende dit onderzoek werd na uitvraag al gauw duidelijk dat de
+verstoringen niet beperkt waren tot dat deze strikte opstart-tijdvak. In de
+logs zien we vervolgens een patroon dat past bij latency in combinatie met
+kwetsbare health checks:
+
+Liveness/Readiness failures op /admin (context deadline exceeded /
+connection refused)
+502-errors aan de voorkant (upstream prematurely closed connection /
+connect() failed 111)
+Redis: Asynchronous AOF fsync is taking too long (disk is busy?)
+
+In de huidige configuratie worden de Kubernetes probes op /admin gezet. Op
+het eerste gezicht lijkt dit een lichte endpoint te zijn, maar wetende hoe
+probes testen, is dit een functioneel, relatief zwaar endpoint (middleware,
+sessies, CSRF) en niet ontworpen als licht technisch health-endpoint. Bij
+korte latency-pieken, onder andere op Redis-opslag, lopen deze requests
+vast, vallen de probes om, markeert Kubernetes de pods als "unhealthy" en
+volgt een restart. Tijdens die restarts zijn er tijdelijk geen endpoints
+beschikbaar en zien we 502 aan de voorkant. Dit sluit aan bij wat wij rond
+oktober 2024 al hebben aangegeven: de gekozen health checks zijn gevoelig
+ingericht en vragen om herziening. Destijds is dat niet structureel
+opgepakt.
+
+Omdat er geen duidelijke requirements waren en er op meerdere plekken
+aannames zijn gedaan, hebben wij als hoster zelf de documentatie van de
+gebruikte componenten erbij gepakt, in dit geval Redis. Redis is een grote,
+goed gedocumenteerde externe leverancier; op basis van hun eigen best
+practices is het helder dat voor gebruik met AOF snelle block-storage zonder
+host-caching de voorkeur heeft. Daarop hebben wij een nieuwe StorageClass
+met Premium SSD v2 (Azure Disk) voorbereid om de I/O-latency te verlagen,
+onder voorbehoud van financiële toetsing en succesvolle tests in onze eigen
+OTA-straat.
+
+De health checks (welk endpoint, welke logica, welke afhankelijkheden)
+moeten door de ontwikkelaars worden aangeleverd. Wij denken altijd graag mee
+met de klant, Dimpact en ontwikkelpartijen, maar wij hosten en deployen wat
+wordt opgeleverd, maar ontwerpen deze endpoints niet zelf. We hebben al
+vaker voorgesteld om expliciete, lichtere en robuustere health-endpoints te
+definiëren, juist omdat de ontwikkelaar het beste kan bepalen wanneer een
+pod echt ongezond is (dus zij weten het beste hoe hun applicaties werkt). We
+zien recent wél een beweging richting meer aandacht voor optimalisatie in
+plaats van alleen het blijven toevoegen van nieuwe features. Dat is
+noodzakelijk, want immers als de fundering niet op orde is, blijft het huis
+wiebelen, hoeveel verdiepingen je er ook bovenop zet.
+
+In het licht van dit incident hopen we dat dit nogmaals benadrukt dat de
+huidige health-checks niet optimaal zijn en echt kritisch heroverwogen
+moeten worden. Een dedicated technisch endpoint voor health checks is nodig
+om dit soort verstoringen structureel te voorkomen.
+
+Kort samengevat:
+dit is geen probleem van gedeelde gateway of ontbrekende isolatie;
+de verstoringen komen voort uit zware health checks in combinatie met
+latency op de onderliggende storage;
+het SSC heeft acties opgepakt rond infrastructuur (OTA-policies, snellere
+storageklasse, zorgvuldig testen) die in deze sprint worden afgerond;
+van de ontwikkelpartij zijn duidelijke niet-functionele eisen (NFRs) en
+passende health-endpoints nodig om de keten als geheel stabieler te maken.
+
+Met die gezamenlijke stappen zorgen we ervoor dat dit soort escalaties in
+de toekomst minder vaak nodig zijn.
