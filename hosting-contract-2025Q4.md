@@ -1,15 +1,16 @@
 # PodiumD Hosting Standards - 2025Q4
 
-| Version | Date | Author | Comments |
-|----|----|----|----|----|
-| 0.1 | 20/02/2024 | Jim Leitch | Sander vd B, Andrew M |
-| 0.8 | 4/3/2024 | Jim Leitch | Stephan Z, Jesse H, Mahmut C, Petra C |
+| Version | Date | Author | Comments by | Comments  |
+| ----- | ---- | ---- | ---- | ---- |
+| 0.1 | 20/02/2024 | Jim Leitch | Sander vd B, Andrew M |  |
+| 0.8 | 4/3/2024 | Jim Leitch | Stephan Z, Jesse H, Mahmut C, Petra C |  |
 | 1.0 | 22/4/2024 | Jim Leitch | SSC/Maykin/Dimpact |
 | 1.1 | 6/5/2024 | Jim Leitch |  |
 | 1.2 | 29/5/2024 | Jim Leitch | Dimpact/ICATT | Updated "k8s operators" |
-| 2024Q3 | 27/8/2024 | Jim Leitch | SSC | Converted to Markdown |
-| 2025Q4 | 27/10/2024 | Jim Leitch | Updated based on WAF, Google SRE,
-  and Cap Gemini assessment |
+| 2024Q3 | 27/8/2024 | Jim Leitch | SSC | Converted to Markdown |  |
+| 2025Q4 | 27/10/2024 | Jim Leitch | | Updated based on WAF, Google SRE and Cap Gemini assessment |  |
+
+
 
 ## Executive Summary
 
