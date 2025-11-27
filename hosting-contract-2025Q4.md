@@ -53,8 +53,14 @@ applications being deployed.
 ## **Hot Items list**
 
 While this document is a work in progress, the following items
-are high priority and should be addressed BLAH BLAH MAHMUT
-SOMETHING HERE BLAH CAP GEMINI BLAH ETC ETC:
+are high priority and should be addressed . These items are the minimum 
+kubernetes stability requirements of the software delivered 
+by the development partners.
+
+We have reviewed the various components of the software components
+to determine whether they are compliant or non-compliant. If not compliant, please 
+include these in the adjustments to your software. The goal is to ensure that all 
+software complies with these "hot items" by the end of Q1 2026.
 
 #### Health Checks and Probes
 
