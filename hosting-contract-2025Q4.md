@@ -4,11 +4,12 @@
 | ----- | ---- | ---- | ---- | ---- |
 | 0.1 | 20/02/2024 | Jim Leitch | Sander vd B, Andrew M |  |
 | 0.8 | 4/3/2024 | Jim Leitch | Stephan Z, Jesse H, Mahmut C, Petra C |  |
-| 1.0 | 22/4/2024 | Jim Leitch | SSC/Maykin/Dimpact |
-| 1.1 | 6/5/2024 | Jim Leitch |  |
+| 1.0 | 22/4/2024 | Jim Leitch | SSC/Maykin/Dimpact ||
+| 1.1 | 6/5/2024 | Jim Leitch |  ||
 | 1.2 | 29/5/2024 | Jim Leitch | Dimpact/ICATT | Updated "k8s operators" |
-| 2024Q3 | 27/8/2024 | Jim Leitch | SSC | Converted to Markdown |  |
-| 2025Q4 | 27/10/2024 | Jim Leitch | | Updated based on WAF, Google SRE and Cap Gemini assessment |  |
+| 2024Q3 | 27/8/2024 | Jim Leitch | SSC | Converted to Markdown |
+| 2025Q4 | 17/12/2024 | Jim Leitch | SSC, ICATT, DIMPACT, CAPGEMENI |  |
+|  |  |  | |  |
 
 
 
@@ -57,7 +58,7 @@ are high priority and should be addressed . These items are the minimum
 kubernetes stability requirements of the software delivered 
 by the development partners.
 
-We have reviewed the various components of the software components
+We have reviewed the various components of the development partners in 
 to determine whether they are compliant or non-compliant. If not compliant, please 
 include these in the adjustments to your software. The goal is to ensure that all 
 software complies with these "hot items" by the end of Q1 2026.
@@ -70,8 +71,8 @@ and [COMP014.2-probe-config] for more details.
 
 #### Upgradability 
 
-Applications must be able to be upgraded in a healthy and zero-downtime manner.
-Use database techniques that allow for a rolling upgrade of the database.
+Applications must be able to be upgraded in a zero-downtime manner.
+Use database techniques that allow for a rolling upgrade of components, migration of the database and rollback of the database when required.
 See section [COMP006.2-upgrade-time-limit] for more details.
 
 #### High Availability
@@ -95,7 +96,7 @@ Not every customer/supplier requires the full set of OTAP environments.
 
 ### Cloud Resource Provider
 
-We currently use Microsoft's Azure as our cloud platform. Our focus
+Dimpact currently uses Microsoft's Azure as our cloud platform. Our focus
 is currently on Microsoft Azure; however, we MAY in the future to
 use alternative cloud platforms. Any efforts made for deployment to
 our cloud platform should be generic, using open standards, keeping
@@ -274,10 +275,11 @@ minimum of repeated configuration.
 - Service names MUST be descriptive and reflect the business domain
 - Service names MUST be consistent across all environments (OTAP)
 - Helm chart names MUST match the service name
-- Kubernetes namespaces SHOULD follow the pattern:
-  `{customer}-{service-name}` or use a single namespace per
-  recognizable component
+- ~~Kubernetes namespaces SHOULD follow the pattern:~~
+  ~~`{customer}-{service-name}` or use a single namespace per~~
+  ~~recognizable component~~
 - Container image names MUST use the service name as base
+- Applications MUST have one single name that is used throughout the service, prefereble between 5 and 10 characters 
 - API endpoint paths SHOULD use the service domain name for consistency
 
 **Naming Examples:**
@@ -299,7 +301,7 @@ is defined by the versions of the sub-applications.
   standardized version API endpoint at `/api/v1/version` or
   `/health/version`
 
-- The version endpoint MUST return the following information in JSON format:
+- The version endpoint SHOULD return the following information in JSON format:
   - Application/component name
   - Semantic version number
   - Build date/timestamp
@@ -376,33 +378,29 @@ load-based up and down-scaling of containers.
 sudden stops and starts (for example a node failing or container-node
 migration event)
 
+This means that to be able to withstand a node failure, and to ensure no downtime, all components MUST have a minimum of two instances (that will automatically take the work over from the other in event of failure) and make use of shared storage.
+
+
+
 Applications MAY be deployed with init containers, startup and shutdown scripts.
 
 ### Component Upgrade Time Limits [COMP006.2-upgrade-time-limit]
 
-- [COMP006.2-upgrade-time-limit] Any upgrade or deployment of a
-  component MUST complete within **15 minutes maximum**
+- [COMP006.2-upgrade-time-limit] Any upgrade  of a
+  component SHOULD be able to be  performed in a rolling manner, with zero downtime
 
-- This includes:
-  - Container image pull time
-  - Database migrations
-  - Health check stabilization
-  - Rolling update completion
+- Deployments that require any downtime require architectural review
+  
+- Deployments should provide rollback function, this is esepcially needed in the case of migratkions that are stop due to errors during deployment (see also COMP010-sql-migration-scripts)
+  
+  
 
-- Deployments taking longer than 15 minutes MUST be split into
-  multiple phases or require architectural review
+### Component Upgrade Time Limits [COMP006.3-rollbacks]
 
-- Zero-downtime deployments are STRONGLY RECOMMENDED using:
-  - Rolling updates with appropriate readiness probes
-  - Blue/green deployment strategies for major changes
-  - Canary deployments for gradual rollouts
 
-- Database migrations that may take longer MUST be handled separately:
-  - Run migrations as separate jobs before deployment
-  - Use backward-compatible schema changes
-  - Implement feature flags for gradual activation
 
-### Helm Charts . Deployment
+
+### Helm Charts Deployment
 
 - Dimpact will curate and provide all required Helm charts in one
   single repository
@@ -412,10 +410,10 @@ Applications MAY be deployed with init containers, startup and shutdown scripts.
   deployed as a sub-chart themselves to facilitate and contribute to
   a complete "umbrella" installation of the PodiumD platform.
 
-- [COMP007.2-operators] We do not support the use of applications and
-  components deployed by means of Kubernetes Operators **unless** the
-  installation and use of the operators can be encapsulated inside a
-  single Umbrella Helm chart.
+- ~~[COMP007.2-operators] We do not support the use of applications and~~
+  ~~components deployed by means of Kubernetes Operators **unless** the~~
+  ~~installation and use of the operators can be encapsulated inside a~~
+  ~~single Umbrella Helm chart.~~
 
 - [COMP007.3-dependancy-apps] Any dependency-applications MUST be
   deployed as Helm sub-charts.
@@ -429,7 +427,7 @@ Applications MAY be deployed with init containers, startup and shutdown scripts.
   changes are currently exempt from this requirement.
 
 - Helm charts SHOULD be available via the same artifacts' repository
-  as the containers
+  as the containers and SHOULD be made available in OCI format. 
 
 - [COMP007.4-storage] Helm chart MUST support storage type via SSC's
   own storage choices (if file storage is required)
@@ -511,7 +509,9 @@ via the APIs.
 
 [COMP010-sql-migration-scripts] Applications MUST have all database
 migrations built in or provide config scripts for a DB migration tool
-such as Flyway or Liquibase.
+such as Flyway or Liquibase, or that as provided by the framework (e.g. Django)
+
+Database migrations MUST provide a rollback function
 
 ### Application concurrency / Statelessness
 
@@ -523,7 +523,7 @@ such as Flyway or Liquibase.
 
 - [COMP011-no-local-storage] Persistent files containing any data
   MUST NOT be written to local storage on the container but instead
-  to a kubernetes PV.
+  to a kubernetes PVC.
 
 - [COMP011-permanent-data] Permanent data that requires to be backed
   up must be written to a file share created outside of the K8s
@@ -542,14 +542,11 @@ Files MAY be stored in the following storage types, in order of preference:
 ### Configuration / Secrets
 
 - All application configurations SHOULD be performed via environment variables.
-
 - Environment variables SHOULD be set via config maps in the helm chart.
-
 - [COMP012-secrets] Secret/sensitive information MUST be written to
-  the K8s secrets store.
-
-- Secrets will be sourced and read from the Azure Key Vault at deployment-time.
-
+  the K8s secrets store
+- Helm charts SHOULD provide the ability to source secrets from the secrets store directly - Commonly this is called the secretKeyRef (externalized secrets) pattern - templates use refs (env.valueFrom.secretKeyRef) instead of embedding secret values in values.yaml.
+- Secrets will be sourced and read into the secrets store from the Azure Key Vault at deployment-time.
 - Application logging verbosity SHOULD be enabled by setting a debug
   environment variable and restarting the container.
 
@@ -572,6 +569,14 @@ failing containers.
 Well-Architected Framework:**
 
 #### Health State Definitions [COMP014.1-health-states]
+
+A solid Kubernetes setup uses distinct startup, liveness, and readiness probes: startup ensures full initialization (migrations, warm A robust Kubernetes setup employs distinct startup, liveness and readiness probes. Startup ensures complete initialisation, including migrations and warm caches. Liveness is a low-cost internal heartbeat process (no external calls) and readiness confirms dependencies like a simple database ping, cache/broker connectivity and config/secrets loading before routing traffic.
+
+Broader readiness health should also validate resource pressure, such as CPU throttling, memory nearing limits, disk space/inodes thresholds and queue/backlog size against SLAs. Thread/worker pool saturation, recent error rate spikes and optionally feature flags or external auth token freshness should also be monitored while maintaining fast response times (sub-100ms).
+
+Complement these probes with a /metrics endpoint that exposes latency histograms, error counters, request concurrency, queue depth, GC pauses and custom saturation gauges. This enables autoscaling (HPA/KEDA) and alerts on trends rather than simply binary probe failures.
+
+
 
 Applications MUST clearly define and document the following operational states:
 
@@ -633,6 +638,39 @@ Applications MUST implement all three types of probes:
 - Success threshold should prevent flapping
 - Period should balance responsiveness with load
 - Timeout should account for network variability
+
+
+
+See an example of a section of a helm chart that defines the health probes for a component:
+
+```
+startupProbe:
+  initialDelaySeconds: 40
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 12
+  successThreshold: 1
+
+livenessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 12
+  successThreshold: 1
+
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 3
+  successThreshold: 1
+
+probesEnabled:
+  startupProbe: true
+  livenessProbe: true
+  readinessProbe: true
+```
+
 
 See [Configure Liveness, Readiness and Startup Probes |
 Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/
@@ -921,21 +959,21 @@ point in time. If a gemeente decide to change the URL that citizens
 access the application from, this should not require any database
 updates.
 
-Applications MUST be accessible via:
+~~Applications MUST be accessible via:~~
 
-- technical domains: app.test.gemeente.dimpact.nl
-- vanity name domains: burgerformulieren.gemeente.nl
-- kubernetes internal DNS naming: openzaak.podiumd.svc.cluster.local
-- relative path domain name: gemeente.nl/formulieren 
+- ~~technical domains: app.test.gemeente.dimpact.nl~~
+- ~~vanity name domains: burgerformulieren.gemeente.nl~~
+- ~~kubernetes internal DNS naming: openzaak.podiumd.svc.cluster.local~~
+- ~~relative path domain name: gemeente.nl/formulieren~~ 
 
 More information can be found here:
 <https://dimpact.atlassian.net/wiki/spaces/PCP/pages/175865864/
 Toegang+API+s+via+verschillende+domeinnamen+waaronder+interne+toegang>
 
-## Deployment Verzoek
+## ~~Deployment Verzoek~~
 
-Deployment requests take the form of a "Deployment Verzoek", a form
-filled in with all relevant data required for deployment.
+~~Deployment requests take the form of a "Deployment Verzoek", a form~~
+~~filled in with all relevant data required for deployment.~~
 
 ### Release notes
 
@@ -1031,56 +1069,56 @@ Release notes SHOULD follow the "Keep a Changelog" format:
 - Documentation MUST be kept up-to-date
 - Example requests and responses SHOULD be provided
 
-### Service Mesh Considerations [COMP026-service-mesh]
+### ~~Service Mesh Considerations [COMP026-service-mesh]~~
 
-For complex microservice environments:
+~~For complex microservice environments:~~
 
-- Service mesh (like Istio or Linkerd) MAY be used for:
-  - Mutual TLS between services
-  - Traffic management and routing
-  - Observability and tracing
-  - Circuit breaking and retry logic
+- ~~Service mesh (like Istio or Linkerd) MAY be used for:~~
+  - ~~Mutual TLS between services~~
+  - ~~Traffic management and routing~~
+  - ~~Observability and tracing~~
+  - ~~Circuit breaking and retry logic~~
 
-- If service mesh is used:
-  - Applications MUST NOT implement their own service discovery
-  - Applications SHOULD rely on mesh for retry and timeout logic
-  - Applications MUST expose metrics for mesh integration
+- ~~If service mesh is used:~~
+  - ~~Applications MUST NOT implement their own service discovery~~
+  - ~~Applications SHOULD rely on mesh for retry and timeout logic~~
+  - ~~Applications MUST expose metrics for mesh integration~~
 
-## Documentation Requirements [COMP027-documentation]
+## ~~Documentation Requirements [COMP027-documentation]~~
 
-### Technical Documentation
+### ~~Technical Documentation~~
 
-Each application MUST provide:
+~~Each application MUST provide:~~
 
-1. **Architecture Documentation:**
-   - System architecture diagram
-   - Component interactions
-   - Data flow diagrams
-   - External dependencies
+1. ~~**Architecture Documentation:**~~
+   - ~~System architecture diagram~~
+   - ~~Component interactions~~
+   - ~~Data flow diagrams~~
+   - ~~External dependencies~~
 
-2. **Deployment Documentation:**
-   - Helm chart values explanation
-   - Environment-specific configurations
-   - Deployment sequence/dependencies
-   - Rollback procedures
+2. ~~**Deployment Documentation:**~~
+   - ~~Helm chart values explanation~~
+   - ~~Environment-specific configurations~~
+   - ~~Deployment sequence/dependencies~~
+   - ~~Rollback procedures~~
 
-3. **Operations Documentation:**
-   - Runbooks for common issues
-   - Troubleshooting guides
-   - Log interpretation guide
-   - Metrics dashboard descriptions
+3. ~~**Operations Documentation:**~~
+   - ~~Runbooks for common issues~~
+   - ~~Troubleshooting guides~~
+   - ~~Log interpretation guide~~
+   - ~~Metrics dashboard descriptions~~
 
-4. **API Documentation:**
-   - OpenAPI/Swagger specification
-   - Authentication/authorization details
-   - Rate limiting information
-   - Example requests/responses
+4. ~~**API Documentation:**~~
+   - ~~OpenAPI/Swagger specification~~
+   - ~~Authentication/authorization details~~
+   - ~~Rate limiting information~~
+   - ~~Example requests/responses~~
 
-5. **Security Documentation:**
-   - Security controls implemented
-   - Authentication/authorization model
-   - Data encryption details
-   - Compliance requirements
+5. ~~**Security Documentation:**~~
+   - ~~Security controls implemented~~
+   - ~~Authentication/authorization model~~
+   - ~~Data encryption details~~
+   - ~~Compliance requirements~~
 
 ### Documentation Maintenance
 
@@ -1173,101 +1211,3 @@ Practices](https://kubernetes.io/docs/concepts/configuration/overview/)
 [Azure Best Practices for
 AKS](https://learn.microsoft.com/en-us/azure/aks/best-practices)
 
-Vooraf willen we benadrukken dat we begrijpen dat dit frustrerend is.
-In een escalatie valt de blik al snel op de hoster, en dat snappen we ook:
-jullie zijn afhankelijk van de informatie die jullie krijgen uit verschillende
-bronnen. Tegelijk is dit geen kwestie van één schuldige partij, maar van
-een keten van keuzes en aannames. Met deze reactie willen we helder maken
-wat er feitelijk is gebeurd en wie waar aan zet is.
-
-De aanname dat dit een gateway- of isolatieprobleem is, klopt niet. Onze
-OTAP-omgevingen (ontwikkel, test, acceptatie en productie) zijn gescheiden
-en geïsoleerd ingericht, met per omgeving eigen infrastructuur, eigen
-Kubernetes-cluster en eigen ingress controllers. De twee Azure Application
-Gateways (één voor OT, één voor AP) zijn een bewuste architectuur- én
-kostenkeuze vanuit het PodiumD-landschap. We willen benadrukken dat deze
-inrichting in deze analyse niet de oorzaak is van de time-outs.
-
-Deze opzet is destijds gekozen omdat dit één van de veiligere en beter
-beheersbare keuzes/varianten is, ook al was deze scheiding niet als harde
-eis geformuleerd. Deze inrichting is bekend bij de architechtuurraad van
-Dimpact en maakt onderdeel uit van de periodieke audits die wij aanleveren.
-
-De melding is in eerste instantie ingestoken vanuit een verkeerde
-afbakening: er werd gesteld dat de problemen alleen optraden in een
-specifiek tijdvak rond het 's ochtends opstarten van OTA-omgevingen.
-Belangrijk daarbij is dat het uit/aan-proces uitsluitend voor OTA
-(ontwikkel, test, acceptatie) bedoeld is, niet voor productie. Het is een
-begrijpelijke kostenbesparende keuze geweest vanuit Dimpact, maar in OTA
-heeft dit wel bijeffecten.
-
-Eén van de bijeffecten is dat, als men gebruik maakt van de
-best-practices, dan worden de OTA-nodes 's nachts letterlijk vervangen, en
-zullen image-caches worden verwijderd en moeten container-images 's ochtends
-opnieuw worden binnengehaald. We hebben het afwijken van deze standaard
-best-practice onderzocht en hiervoor aanpassingen gedaan in de policies,
-maar we voeren die niet ad hoc door: zulke wijzigingen kunnen ook impact
-hebben op het automatisch vrijgeven van nodes en worden daarom eerst
-zorgvuldig in onze eigen OTA-straat getest.
-
-Gedurende dit onderzoek werd na uitvraag al gauw duidelijk dat de
-verstoringen niet beperkt waren tot dat deze strikte opstart-tijdvak. In de
-logs zien we vervolgens een patroon dat past bij latency in combinatie met
-kwetsbare health checks:
-
-Liveness/Readiness failures op /admin (context deadline exceeded /
-connection refused)
-502-errors aan de voorkant (upstream prematurely closed connection /
-connect() failed 111)
-Redis: Asynchronous AOF fsync is taking too long (disk is busy?)
-
-In de huidige configuratie worden de Kubernetes probes op /admin gezet. Op
-het eerste gezicht lijkt dit een lichte endpoint te zijn, maar wetende hoe
-probes testen, is dit een functioneel, relatief zwaar endpoint (middleware,
-sessies, CSRF) en niet ontworpen als licht technisch health-endpoint. Bij
-korte latency-pieken, onder andere op Redis-opslag, lopen deze requests
-vast, vallen de probes om, markeert Kubernetes de pods als "unhealthy" en
-volgt een restart. Tijdens die restarts zijn er tijdelijk geen endpoints
-beschikbaar en zien we 502 aan de voorkant. Dit sluit aan bij wat wij rond
-oktober 2024 al hebben aangegeven: de gekozen health checks zijn gevoelig
-ingericht en vragen om herziening. Destijds is dat niet structureel
-opgepakt.
-
-Omdat er geen duidelijke requirements waren en er op meerdere plekken
-aannames zijn gedaan, hebben wij als hoster zelf de documentatie van de
-gebruikte componenten erbij gepakt, in dit geval Redis. Redis is een grote,
-goed gedocumenteerde externe leverancier; op basis van hun eigen best
-practices is het helder dat voor gebruik met AOF snelle block-storage zonder
-host-caching de voorkeur heeft. Daarop hebben wij een nieuwe StorageClass
-met Premium SSD v2 (Azure Disk) voorbereid om de I/O-latency te verlagen,
-onder voorbehoud van financiële toetsing en succesvolle tests in onze eigen
-OTA-straat.
-
-De health checks (welk endpoint, welke logica, welke afhankelijkheden)
-moeten door de ontwikkelaars worden aangeleverd. Wij denken altijd graag mee
-met de klant, Dimpact en ontwikkelpartijen, maar wij hosten en deployen wat
-wordt opgeleverd, maar ontwerpen deze endpoints niet zelf. We hebben al
-vaker voorgesteld om expliciete, lichtere en robuustere health-endpoints te
-definiëren, juist omdat de ontwikkelaar het beste kan bepalen wanneer een
-pod echt ongezond is (dus zij weten het beste hoe hun applicaties werkt). We
-zien recent wél een beweging richting meer aandacht voor optimalisatie in
-plaats van alleen het blijven toevoegen van nieuwe features. Dat is
-noodzakelijk, want immers als de fundering niet op orde is, blijft het huis
-wiebelen, hoeveel verdiepingen je er ook bovenop zet.
-
-In het licht van dit incident hopen we dat dit nogmaals benadrukt dat de
-huidige health-checks niet optimaal zijn en echt kritisch heroverwogen
-moeten worden. Een dedicated technisch endpoint voor health checks is nodig
-om dit soort verstoringen structureel te voorkomen.
-
-Kort samengevat:
-dit is geen probleem van gedeelde gateway of ontbrekende isolatie;
-de verstoringen komen voort uit zware health checks in combinatie met
-latency op de onderliggende storage;
-het SSC heeft acties opgepakt rond infrastructuur (OTA-policies, snellere
-storageklasse, zorgvuldig testen) die in deze sprint worden afgerond;
-van de ontwikkelpartij zijn duidelijke niet-functionele eisen (NFRs) en
-passende health-endpoints nodig om de keten als geheel stabieler te maken.
-
-Met die gezamenlijke stappen zorgen we ervoor dat dit soort escalaties in
-de toekomst minder vaak nodig zijn.
