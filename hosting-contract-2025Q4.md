@@ -261,6 +261,65 @@ We expect that Dimpact will require suppliers to deliver the
 applications in a way that allows for secure, scalable, stable,
 manageable, and easily deployable systems.
 
+
+
+## Standards Summary Table
+
+| Standard ID | Summary |
+|-------------|---------|
+| **CORE REQUIREMENTS** | **Basic application structure, deployment, and configuration** |
+| COMP001-naming | Naming conventions for services, components, and resources |
+| COMP002-versioning | Versioning requirements for PodiumD components |
+| COMP002.1-version-api | Standardized version API endpoint exposing application metadata |
+| COMP003.1-app-as-containers | Applications must be delivered as containers |
+| COMP003.3-container-registry | Containers must be available via public container registry |
+| COMP003.3-semantic-versioning | Container labels must use semantic versioning |
+| COMP004-timezone | Applications must use UTC timezone for logging and monitoring |
+| COMP005-software-supply-chain | Container vulnerability scanning and mitigation requirements |
+| COMP006.1-stop-start-safe | Applications must withstand sudden stops and starts |
+| COMP006.2-upgrade-time-limit | Zero-downtime rolling upgrades with rollback capability |
+| COMP006.3-rollbacks | Component rollback requirements and procedures |
+| COMP007.1-helm | All applications must be accompanied by Helm charts |
+| COMP007.3-dependancy-apps | Dependency applications must be deployed as Helm sub-charts |
+| COMP007.4-storage | Helm chart must support SSC's storage choices |
+| COMP007.5-ingress | Helm chart must support SSC's ingress choices |
+| COMP007.5-database | Helm chart must support external cloud database usage |
+| COMP008.1-100percent-automated | Complete deployment automation from Helm chart |
+| COMP009-internal-communication | Inter-component communication should occur inside cluster via APIs |
+| COMP010-sql-migration-scripts | Database migrations must be built-in with rollback functionality |
+| COMP011-no-local-storage | Persistent data must not be written to local container storage |
+| COMP011-permanent-data | Permanent data requiring backup must be written to external file share |
+| COMP012-secrets | Secret information must be written to K8s secrets store |
+| COMP013-ssl | Application endpoints must be presented as HTTP (SSL terminated at gateway) |
+| **HEALTH CHECKS & MONITORING** | **Application observability, health, and metrics** |
+| COMP014-healthchecks | Applications must provide probe endpoints for container health monitoring |
+| COMP014.1-health-states | Clear definition of health states (healthy, degraded, unhealthy, starting, stopping) |
+| COMP014.2-probe-config | Implementation of liveness, readiness, and startup probes |
+| COMP014.3-redundancy | Multi-zone deployment with retry mechanisms and load balancing |
+| COMP014.4-pdb | Critical services must define Pod Disruption Budgets |
+| COMP015.1-logging-to-stdout | Applications must stream all logging to STDOUT |
+| COMP016.2-utc-logs | Log lines must use UTC timestamps without timezone |
+| COMP017-golden-signals | Applications must provide metrics for the four golden signals |
+| COMP017.1-latency-metrics | Request duration and response time metrics |
+| COMP017.2-traffic-metrics | Requests per second and concurrent connections metrics |
+| COMP017.3-error-metrics | Error rate and error types metrics |
+| COMP017.4-saturation-metrics | Resource utilization and queue depth metrics |
+| COMP018-alerting | Alert design principles based on Google SRE practices |
+| COMP018.1-slo-alerting | Alerts should be tied to Service Level Objectives |
+| COMP019-slo | Service Level Objectives and error budget definitions |
+| **OPERATIONS & DEPLOYMENT** | **Resource management, recovery, and release practices** |
+| COMP020-resource-recommendations | Applications must provide CPU/memory estimates and autoscaling configuration |
+| COMP021-disaster-recovery | Recovery Time Objective (RTO) and Recovery Point Objective (RPO) requirements |
+| COMP022-release-notes | Comprehensive release notes with breaking changes and migration steps |
+| **SECURITY, COMPLIANCE & PERFORMANCE** | **Security controls, compliance, and optimization** |
+| COMP023-security | Container security, network security, and secret management requirements |
+| COMP024-sbom | Software Bill of Materials in SPDX or CycloneDX format |
+| COMP025-api-practices | RESTful API design standards, versioning, and documentation |
+| COMP028-compliance | Audit logging and GDPR compliance requirements |
+| COMP029-performance | Response time targets, throughput requirements, and caching strategy |
+| COMP030-cost-optimization | Resource efficiency and cost visibility requirements |
+
+
 ### Naming Conventions [COMP001-naming]
 
 All application and parameter naming should be uniform to allow for a
