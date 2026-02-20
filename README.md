@@ -4,7 +4,7 @@ This repository contains the hosting standards and requirements for the PodiumD 
 
 ## Current Version
 
-**Latest:** [hosting-contract-2025Q4.md](hosting-contract-2025Q4.md) - October 2024
+**Latest:** [hosting-contract-2025Q4.pdf](hosting-contract-2025Q4.pdf) - October 2024
 
 This version incorporates best practices from:
 - Microsoft Azure Well-Architected Framework
