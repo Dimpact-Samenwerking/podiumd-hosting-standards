@@ -8,6 +8,7 @@ This document sets out what Dimpact expects from software suppliers, so that the
 | [Priority requirements](#priority-requirements) | The three items to address first |
 | [The hosting platform](#the-hosting-platform) | The environment that the software is deployed into |
 | [Requirements](#requirements) | All requirements, with an index by ID |
+| [Proposed additions](#proposed-additions) | Suggestions for new standards, not yet agreed |
 | [References](#references) | Background reading |
 | [Version history](#version-history) | Versions of this document |
 
@@ -756,6 +757,82 @@ Cost visibility:
 - The cost per transaction or per user SHOULD be estimated.
 - Optimization opportunities SHOULD be identified.
 
+## Proposed additions
+
+> **Status: proposal.** Nothing in this section is a requirement yet. These are suggestions for discussion between Dimpact, SSC Hosting and the suppliers. A proposal that is accepted gets a `COMP` ID and moves to [Requirements](#requirements).
+
+The requirements above mostly describe how one application should behave. These proposals are about delivery and integration: what is needed when applications from several suppliers are combined into one platform, and run for many municipalities on shared infrastructure.
+
+| Theme | Aim | Proposals |
+| --- | --- | --- |
+| [A. A delivery that can be verified](#a-a-delivery-that-can-be-verified) | What is delivered is exactly what runs, and its origin can be proven. | PROP-01 to PROP-07 |
+| [B. A good neighbor in a shared cluster](#b-a-good-neighbor-in-a-shared-cluster) | One component cannot disturb another component, or the cluster. | PROP-08 to PROP-16 |
+| [C. Life cycle of the whole platform](#c-life-cycle-of-the-whole-platform) | The platform as a whole survives stops, upgrades and restores. | PROP-17 to PROP-23 |
+| [D. Problems that cross supplier boundaries](#d-problems-that-cross-supplier-boundaries) | A fault can be followed through components of different suppliers. | PROP-24 to PROP-28 |
+| [E. Compliance that can be checked](#e-compliance-that-can-be-checked) | Compliance is measured, not discussed. | PROP-29 to PROP-33 |
+
+Suggested to discuss first: PROP-02, PROP-08, PROP-17, PROP-19 and PROP-29. These five have the widest effect, because each one concerns every component in every environment.
+
+The "Level" column gives the proposed level.
+
+### A. A delivery that can be verified
+
+| ID | Level | Proposal | Why |
+| --- | --- | --- | --- |
+| PROP-01 | MUST | A released image tag is never overwritten, and `latest` is not used. The release notes give the digest of every image, and the Helm chart accepts a digest in place of a tag. | SSC Hosting copies each image to its own registry and rolls a release out over several weeks. If a tag changes in between, acceptance and production run different code under the same version number. |
+| PROP-02 | MUST | Every image that a chart can start is set through values: containers, init containers, sidecars, jobs, hooks, tests and sub-charts. One global value overrides the registry for all of them. Each chart release lists all its images. | SSC Hosting runs images from its own registry ([COMP003.3-container-registry]). One hard-coded image in a hook breaks the deployment, or quietly keeps the platform dependent on a public registry with its rate limits and outages. |
+| PROP-03 | MUST NOT | A container does not download code, plugins or other assets from the internet when it starts or while it runs. | What was scanned must be what runs. Runtime downloads also need outbound internet access, which a shared platform wants to keep closed. |
+| PROP-04 | MUST | Images are built on a base image and a language runtime that still get security updates. Every supported release is rebuilt at least once a month, also when the application code has not changed. | Most findings of an image scanner are in the base layers. The 7-day limit in [COMP023-security] cannot be met without a routine rebuild. |
+| PROP-05 | SHOULD | Images and charts are signed, for example with [Sigstore](https://docs.sigstore.dev/). The SBOM ([COMP024-sbom]) and the build provenance ([SLSA](https://slsa.dev/)) are attached to the image as attestations. | With several suppliers, the origin of an artifact must be proven automatically before the cluster admits it. An SBOM that travels with the image cannot go missing or out of date. |
+| PROP-06 | MUST | A chart passes `helm lint` and renders with its default values. It contains a `values.schema.json`, declares the supported Kubernetes versions in `kubeVersion`, and uses no API that is deprecated in those versions. Each release includes tested example values for a minimal and for a high-availability installation. | Errors show up in the supplier's pipeline, not during a deployment for a municipality. Kubernetes is updated every month, so API removals arrive quickly. |
+| PROP-07 | SHOULD | Images are published for both `linux/amd64` and `linux/arm64`. | SSC Hosting can then choose cheaper ARM nodes ([COMP030-cost-optimization]), and developers can run the platform on ARM laptops. |
+
+### B. A good neighbor in a shared cluster
+
+| ID | Level | Proposal | Why |
+| --- | --- | --- | --- |
+| PROP-08 | MUST NOT | A component chart does not create cluster-wide resources: CRDs, ClusterRoles and their bindings, admission webhooks, storage, ingress or priority classes, namespaces. An operator or CRD that cannot be avoided is delivered separately, with the versions it supports, so that SSC Hosting can install and upgrade it on its own. | Cluster-wide resources are shared by all tenants. Two suppliers that ship different versions of the same CRD or operator overwrite each other, and Helm does not upgrade CRDs. This fills the gap left by the withdrawn COMP007.2-operators. |
+| PROP-09 | MUST | All workloads run under the Kubernetes [Pod Security Standard](https://kubernetes.io/docs/concepts/security/pod-security-standards/) `restricted`. An exception needs a waiver per container. | Turns the container rules of [COMP023-security] into one check that the cluster itself enforces on the namespace. |
+| PROP-10 | MUST | Each workload has its own ServiceAccount. The API token is mounted only if the workload calls the Kubernetes API. Any RBAC rights it needs are limited to the namespace and listed in the documentation. | All of PodiumD runs in one namespace. A pod of one supplier must not be able to read the secrets of another supplier's component. |
+| PROP-11 | MUST | Each component declares its connections in a machine-readable file: inbound and outbound, with peer, port and protocol, and the host names of external systems. The chart includes NetworkPolicies that match, and that work when all other traffic is denied by default. | [COMP023-security] requires network policies, but only the supplier knows the traffic flows. SSC Hosting needs the same list for firewall and egress rules. |
+| PROP-12 | MUST | Every workload, including jobs and hooks, has values for `nodeSelector`, `tolerations`, `affinity`, `topologySpreadConstraints` and `priorityClassName`. | The platform has separate node groups and several availability zones. Without these settings SSC Hosting cannot place workloads, and [COMP014.3-redundancy] cannot be met. |
+| PROP-13 | MUST | Every container has CPU and memory requests and a memory limit, including init containers, sidecars, jobs and hooks. The chart installs in a namespace that has a ResourceQuota and a LimitRange. | [COMP020-resource-recommendations] covers the main workload. A single container without requests is invisible to the scheduler and can starve its neighbors. |
+| PROP-14 | MUST | All resources have the [recommended labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/) `app.kubernetes.io/*` (name, instance, version, component, part-of, managed-by) and `helm.sh/chart`. Resource names are derived from the release name. The namespace and the cluster domain are never hard-coded. | With components of several suppliers in one namespace, labels are the only reliable way to see which pod belongs to which component and version, and to select it for monitoring, network policies and cost allocation. |
+| PROP-15 | MUST | A component can use the shared services of the platform instead of its own copy: PostgreSQL, Redis, object storage, search, message broker, identity provider and mail. Every bundled dependency can be switched off in values. The component declares what it needs from each service: version range, extensions, size and number of connections. The database account used at run time needs no superuser rights. | Extends [COMP007.5-database] to all backing services. Otherwise the platform ends up with several Redis and search installations, each with its own life cycle. A managed PostgreSQL server only allows listed extensions, and all applications share its connection limit. |
+| PROP-16 | MUST | An application accepts an additional CA bundle through configuration. It SHOULD also honor `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY`. | Municipal back-office systems often use certificates from a private CA, such as the PKIoverheid private root. Without this setting, each environment needs its own image. |
+
+### C. Life cycle of the whole platform
+
+| ID | Level | Proposal | Why |
+| --- | --- | --- | --- |
+| PROP-17 | MUST | An environment recovers without manual action after everything in it was stopped at the same time, whatever the order in which things start again. A component waits for a missing dependency and retries; it does not fail for good. Stateful components come back without repair work. | Development, test and acceptance environments are switched off every evening and weekend. [COMP006.1-stop-start-safe] covers the loss of one container or node, not of everything at once. |
+| PROP-18 | MUST | A container handles SIGTERM: it stops accepting new work, finishes the requests in progress and exits within its `terminationGracePeriodSeconds`. | Monthly node upgrades and autoscaling stop pods all the time. Zero-downtime upgrades ([COMP006.2-upgrade-time-limit]) are impossible if a stopping pod drops its requests. |
+| PROP-19 | MUST | Database migrations run as one explicit step with a clear exit status, such as a job or hook, and never from every replica at startup. They can be run again safely after an interruption. The release notes state how long the migration takes on production-sized data, and whether the release can still be rolled back after it. Schema changes SHOULD follow the expand-and-contract pattern, so that the previous application version works with the new schema. | Makes [COMP006.2-upgrade-time-limit], [COMP006.3-rollbacks] and [COMP010-sql-migration-scripts] achievable. Zero downtime and rollback only work if the old code can run against the new schema. |
+| PROP-20 | MUST | Each release states from which versions a direct upgrade is supported. An upgrade from the previous minor release is always supported. A values key, environment variable or API is announced as deprecated at least one minor release before it is removed or renamed. Each release includes a machine-readable list of the values that changed. | Municipalities run different versions at the same time. The values for many environments and several suppliers are maintained in one place, where a silent rename becomes a failed deployment. |
+| PROP-21 | MUST | Helm hooks can be run again and have a delete policy. Jobs set `backoffLimit`, `activeDeadlineSeconds` and `ttlSecondsAfterFinished`. CronJobs set `concurrencyPolicy` and can be suspended in values. An installation or upgrade finishes within a stated time when Helm waits for it and rolls back on failure. | A failed hook leaves a release stuck, and a leftover job blocks the next deployment. A stated time gives the pipeline a limit to test against. |
+| PROP-22 | MUST | The configuration that connects components (endpoints, credentials, client registrations) is applied automatically from values and secrets, and can be applied again without side effects. No step needs an administration screen. Functional setup SHOULD be exportable and importable. | [COMP008.1-100percent-automated] stops at running containers. An environment that then needs hours of manual configuration is not automated, and cannot be rebuilt quickly after a disaster ([COMP021-disaster-recovery]). |
+| PROP-23 | MUST | Each component lists where its state lives: database, object storage, volumes, search index, cache. It states which of these is the source of truth, which can be rebuilt, and how. The restore procedure gives the order relative to other components. | [COMP021-disaster-recovery] asks for RTO and RPO per application. Components refer to each other's data, so a restore has to be consistent across suppliers. |
+
+### D. Problems that cross supplier boundaries
+
+| ID | Level | Proposal | Why |
+| --- | --- | --- | --- |
+| PROP-24 | MUST | An application passes the [W3C Trace Context](https://www.w3.org/TR/trace-context/) headers on from incoming to outgoing calls, and writes the trace ID in every log line. It SHOULD export traces with [OpenTelemetry](https://opentelemetry.io/docs/). | One action of a user passes through components of several suppliers. Without a shared ID, every incident starts with a discussion about whose component failed. |
+| PROP-25 | MUST | JSON logs have an agreed minimum set of fields: timestamp, level, message, component, version and trace ID. Logs contain no personal data, such as a BSN, names or document content, and no secrets or tokens. | All components log to one shared platform. Operators who read those logs have no need to see data about citizens. |
+| PROP-26 | SHOULD | The chart can install a ServiceMonitor or PodMonitor, alert rules and dashboards for the component. Values switch them on. | The supplier knows which signals matter. [COMP017-golden-signals] and [COMP018-alerting] say what to measure; without this, each environment is set up by hand. |
+| PROP-27 | MUST | The chart includes [`helm test`](https://helm.sh/docs/topics/chart_tests/) checks that show that the component is up, reaches its dependencies and answers on its API. | Gives the deployment pipeline an objective "deployed and working" result for each component. |
+| PROP-28 | SHOULD | Where a component uses the API of another supplier's component, the consumer publishes contract tests, for example with [Pact](https://docs.pact.io/), and the provider runs them in its release pipeline. | A break between two suppliers is found before the platform release is put together, by the party that can fix it. |
+
+### E. Compliance that can be checked
+
+| ID | Level | Proposal | Why |
+| --- | --- | --- | --- |
+| PROP-29 | Process | Every requirement in this document gets a verification method: automated check, review, or declaration by the supplier. The automated checks are published as a pipeline that suppliers can run before they deliver. | Some fifty requirements, for every component and every release, cannot be reviewed by hand. Suppliers see the result before SSC Hosting does. |
+| PROP-30 | MUST | Each release includes a machine-readable compliance declaration. For every requirement ID it says whether the component complies, the requirement does not apply, or a waiver exists, with a link to the evidence. | Replaces separate compliance reviews with a record that travels with the release. |
+| PROP-31 | Process | Waivers are recorded in this repository, with requirement ID, component, reason, owner and end date. | This document mentions waivers in several places, but not who grants them, where they are kept or when they end. |
+| PROP-32 | MUST | Each supplier publishes which versions get security fixes (at least the current and the previous minor release), a security contact with a disclosure procedure, and end-of-life dates at least six months ahead. | A platform release pins versions of all suppliers. Each pinned version has to stay supported for as long as it runs in production. |
+| PROP-33 | SHOULD | APIs follow the Dutch government [REST API Design Rules](https://gitdocumentatie.logius.nl/publicatie/api/adr/), in place of the general list in [COMP025-api-practices]. Each component repository contains a [`publiccode.yml`](https://yml.publiccode.tools/). | The design rules are a mandatory (*pas toe of leg uit*) standard for Dutch government bodies, municipalities included. `publiccode.yml` is the metadata standard that lets catalogs of public-sector software index a component automatically. |
+
 ## References
 
 - [Architecting Applications for Kubernetes (DigitalOcean)](https://www.digitalocean.com/community/tutorials/architecting-applications-for-kubernetes)
@@ -778,7 +855,7 @@ Cost visibility:
 | 1.2 | 2024-05-29 | Jim Leitch | Dimpact, ICATT | Updated "k8s operators" |
 | 2024Q3 | 2024-08-27 | Jim Leitch | SSC | Converted to Markdown |
 | 2025Q4 | 2025-12-17 | Jim Leitch | SSC, ICATT, Dimpact, Capgemini | |
-| 2026Q1 (draft) | 2026-11-16 | Jim Leitch | | Simplified and restructured; no requirements added or removed |
+| 2026Q1 (draft) | 2026-11-16 | Jim Leitch | | Simplified and restructured; no requirements added or removed. Proposals PROP-01 to PROP-33 added for discussion |
 
 [COMP001-naming]: #naming-comp001-naming
 [COMP002-versioning]: #versioning-comp002-versioning
